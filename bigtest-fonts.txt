@@ -1,0 +1,8 @@
+('Thin 3x3', <class 'urwid.font.Thin3x3Font'>)
+('Thin 4x3', <class 'urwid.font.Thin4x3Font'>)
+('Half Block 5x4', <class 'urwid.font.HalfBlock5x4Font'>)
+('Half Block 6x5', <class 'urwid.font.HalfBlock6x5Font'>)
+('Half Block Heavy 6x5', <class 'urwid.font.HalfBlockHeavy6x5Font'>)
+('Thin 6x6', <class 'urwid.font.Thin6x6Font'>)
+('Half Block 7x7', <class 'urwid.font.HalfBlock7x7Font'>)
+
