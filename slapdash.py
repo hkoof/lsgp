@@ -17,7 +17,9 @@ class MainWindow(urwid.Frame):
     def __init__(self):
         self.header = urwid.AttrMap(urwid.Text(('menu', "Menu")), 'header')
         self.footer = urwid.AttrMap(urwid.Text(('status', '"slapdash" - ldap server dashboard in text mode')), 'footer')
+        about = urwid.BigText('slapdash', urwid.font.HalfBlock7x7Font())
         pages = [
+                    ('slapdash', urwid.Padding(about)),
                     ('aap', urwid.SolidFill('a')),
                     ('noot', urwid.SolidFill('b')),
                     ('mies', urwid.SolidFill('c')),
