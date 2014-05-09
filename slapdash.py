@@ -13,13 +13,30 @@ palette = [
     ('tab selected', 'dark gray', 'dark blue',),
 ]
 
+
+class LoadPage:
+    def __init__(self):
+        self.text = urwid.BigText('---', urwid.font.Thin6x6Font())
+        self.widget = urwid.Overlay(self.text, urwid.SolidFill(), 'center', None, 'middle', None)
+
+    def update(self, ticks):
+        self.text.set_text(str(ticks))
+
+    # FIXME: implement hide and show() called by NoteBook which is to contain this as one of its widgets
+
 class MainWindow(urwid.Frame):
     def __init__(self):
         self.header = urwid.AttrMap(urwid.Text(('menu', "Menu")), 'header')
         self.footer = urwid.AttrMap(urwid.Text(('status', '"slapdash" - ldap server dashboard in text mode')), 'footer')
-        about = urwid.BigText('slapdash', urwid.font.HalfBlock7x7Font())
+
+        abouttext = urwid.BigText('slapdash', urwid.font.Thin6x6Font())
+        about = urwid.Overlay(abouttext, urwid.SolidFill('/'), 'center', None, 'middle', None)
+       
+        self.loadpage = LoadPage()
+
         pages = [
                     ('slapdash', urwid.Padding(about)),
+                    ('load', urwid.Padding(self.loadpage.widget)),
                     ('aap', urwid.SolidFill('a')),
                     ('noot', urwid.SolidFill('b')),
                     ('mies', urwid.SolidFill('c')),
@@ -29,14 +46,36 @@ class MainWindow(urwid.Frame):
                     ('teun', urwid.SolidFill('g')),
                 ]
         self.content = NoteBook(pages)
-
         super().__init__(self.content, self.header, self.footer)
 
-def main():
-    topwidget = MainWindow()
-    loop = urwid.MainLoop(topwidget, palette)
-    loop.run()
+    def update(self, ticks):
+        # call update() on all widgets
+        self.loadpage.update(ticks)
+
+class Main:
+    def __init__(self, interval=1):
+        self._alarm = None
+        self.clockticks = 0
+        self.interval = interval
+
+        self.widget = MainWindow()
+        self.loop = urwid.MainLoop(self.widget, palette)
+        self.startclock()
+        self.loop.run()
+
+    def startclock(self):
+        self._alarm = self.loop.set_alarm_in(self.interval, self.clocktick)
+
+    def stopclock(self):
+        if self._alarm:
+            self.loop.remove_alarm(self._alarm)
+        self._alarm = None
+
+    def clocktick(self, loop=None, data=None):
+        self.clockticks += 1
+        self.widget.update(self.clockticks)
+        self.startclock()
 
 if __name__ == "__main__":
-    main()
+    main = Main()
 
