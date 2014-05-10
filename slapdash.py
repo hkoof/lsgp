@@ -11,16 +11,31 @@ palette = [
     ('status', 'light gray', 'dark blue'),
     ('tab', 'dark blue', ''),
     ('tab selected', 'dark gray', 'dark blue',),
+    ('graph background', '', ''),
+    ('bar', '', 'dark red'),
+    ('bar smooth', 'dark red', ''),
 ]
 
 
-class LoadPage:
+class LoadPage(urwid.Pile):
     def __init__(self):
         self.text = urwid.BigText('---', urwid.font.Thin6x6Font())
-        self.widget = urwid.Overlay(self.text, urwid.SolidFill(), 'center', None, 'middle', None)
+        textadapter = urwid.Overlay(self.text, urwid.SolidFill(), 'center', None, 'middle', None)
+
+        self.bardata = [(v,) for v in range(10)]
+        self.bargraph = urwid.BarGraph(
+                ['graph background', 'bar'],
+                ['graph background', 'bar'],
+                {
+                    (1,0): 'bar smooth',
+                },
+            )
+
+        super().__init__([textadapter, self.bargraph])
 
     def update(self, ticks):
         self.text.set_text(str(ticks))
+        self.bargraph.set_data(self.bardata, 10)
 
     # FIXME: implement hide and show() called by NoteBook which is to contain this as one of its widgets
 
@@ -35,8 +50,8 @@ class MainWindow(urwid.Frame):
         self.loadpage = LoadPage()
 
         pages = [
+                    ('load', urwid.Padding(self.loadpage)),
                     ('slapdash', urwid.Padding(about)),
-                    ('load', urwid.Padding(self.loadpage.widget)),
                     ('aap', urwid.SolidFill('a')),
                     ('noot', urwid.SolidFill('b')),
                     ('mies', urwid.SolidFill('c')),
