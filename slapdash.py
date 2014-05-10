@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import collections
 import urwid
 from notebook import NoteBook
 
@@ -22,20 +23,22 @@ class LoadPage(urwid.Pile):
         self.text = urwid.BigText('---', urwid.font.Thin6x6Font())
         textadapter = urwid.Overlay(self.text, urwid.SolidFill(), 'center', None, 'middle', None)
 
-        self.bardata = [(v,) for v in range(10)]
+        self.nbars = 40
+        self.bartop = 10
+        self.bardata = collections.deque([(0,) for tmp in range(self.nbars)], self.nbars)
         self.bargraph = urwid.BarGraph(
                 ['graph background', 'bar'],
                 ['graph background', 'bar'],
-                {
-                    (1,0): 'bar smooth',
-                },
+                { (1,0): 'bar smooth', },
             )
 
         super().__init__([textadapter, self.bargraph])
 
     def update(self, ticks):
         self.text.set_text(str(ticks))
-        self.bargraph.set_data(self.bardata, 10)
+        self.bardata.append((ticks,))
+        self.bargraph.set_data(list(self.bardata), self.bartop)
+
 
     # FIXME: implement hide and show() called by NoteBook which is to contain this as one of its widgets
 
