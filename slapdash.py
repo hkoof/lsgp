@@ -32,7 +32,10 @@ class LoadPage(urwid.Pile):
                 { (1,0): 'bar smooth', },
             )
 
-        super().__init__([textadapter, self.bargraph])
+        super().__init__([
+            (10, textadapter),
+            self.bargraph,
+        ])
 
     def update(self, ticks):
         self.text.set_text(str(ticks))
