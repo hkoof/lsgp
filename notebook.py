@@ -20,10 +20,14 @@ class NoteBook(urwid.Columns):
             ('weight', 1, urwid.LineBox(tabbox)),
             ('weight', 5, urwid.LineBox(self.pagebox)),
         ]
-        super().__init__(columns) 
+        super().__init__(columns)
+        self.activatePage(self.tabs[0], self.pages[0])
+
 
     def activatePage(self, button, widget):
         for page in self.pages:
+            if page == widget:
+                continue
             if hasattr(page, 'deactivate'):
                 page.deactivate()
 
