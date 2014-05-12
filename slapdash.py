@@ -13,13 +13,15 @@ palette = [
     ('tab', 'dark blue', ''),
     ('tab selected', 'dark gray', 'dark blue',),
     ('graph background', '', ''),
-    ('bar', '', 'dark red'),
-    ('bar smooth', 'dark red', ''),
+    ('bar', '', 'dark blue'),
+    ('bar smooth', 'dark blue', ''),
 ]
 
 
 class LoadPage(urwid.Pile):
     def __init__(self):
+        self.hidden = True
+        self.procfd = open("/proc/loadavg")
         self.text = urwid.BigText('---', urwid.font.Thin6x6Font())
         textadapter = urwid.Overlay(self.text, urwid.SolidFill(), 'center', None, 'middle', None)
 
@@ -37,13 +39,27 @@ class LoadPage(urwid.Pile):
             self.bargraph,
         ])
 
+    def activate(self):
+        self.hidden = False
+        self.updategraph()
+
+    def deactivate(self):
+        self.hidden = True
+
     def update(self, ticks):
-        self.text.set_text(str(ticks))
-        self.bardata.append((ticks,))
+        if self.hidden:
+            return
+        loadline = self.procfd.readline(128)
+        self.procfd.seek(0)
+        load1m = loadline.split()[0]
+        load1number = float(load1m)
+        self.text.set_text(load1m)
+        self.bardata.append((load1number,))
+        self.updategraph()
+
+    def updategraph(self):
         self.bargraph.set_data(list(self.bardata), self.bartop)
 
-
-    # FIXME: implement hide and show() called by NoteBook which is to contain this as one of its widgets
 
 class MainWindow(urwid.Frame):
     def __init__(self):
@@ -52,12 +68,12 @@ class MainWindow(urwid.Frame):
 
         abouttext = urwid.BigText('slapdash', urwid.font.Thin6x6Font())
         about = urwid.Overlay(abouttext, urwid.SolidFill('/'), 'center', None, 'middle', None)
-       
+        self.about = urwid.Padding(about)
         self.loadpage = LoadPage()
 
         pages = [
-                    ('load', urwid.Padding(self.loadpage)),
-                    ('slapdash', urwid.Padding(about)),
+                    ('load', self.loadpage),
+                    ('slapdash', self.about),
                     ('aap', urwid.SolidFill('a')),
                     ('noot', urwid.SolidFill('b')),
                     ('mies', urwid.SolidFill('c')),
