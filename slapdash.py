@@ -15,6 +15,8 @@ palette = [
     ('graph background', '', ''),
     ('bar', '', 'dark blue'),
     ('bar smooth', 'dark blue', ''),
+    ('graph line background', 'brown', ''),
+    ('graph line bar', 'brown', 'dark blue'),
 ]
 
 
@@ -30,9 +32,10 @@ class LoadPage(urwid.Pile):
         self.bardata = collections.deque([(0,) for tmp in range(self.nbars)], self.nbars)
         self.bargraph = urwid.BarGraph(
                 ['graph background', 'bar'],
-                ['graph background', 'bar'],
+                ['graph line background', 'graph line bar'],
                 { (1,0): 'bar smooth', },
             )
+        self.bargraph.set_bar_width(1)
 
         super().__init__([
             (10, textadapter),
@@ -58,7 +61,9 @@ class LoadPage(urwid.Pile):
         self.updategraph()
 
     def updategraph(self):
-        self.bargraph.set_data(list(self.bardata), self.bartop)
+#        lines = [(2,), (4,), (6,), (8,), (8,)]
+        lines = [5]
+        self.bargraph.set_data(list(self.bardata), self.bartop, lines)
 
 
 class MainWindow(urwid.Frame):
@@ -90,7 +95,7 @@ class MainWindow(urwid.Frame):
         self.loadpage.update(ticks)
 
 class Main:
-    def __init__(self, interval=1):
+    def __init__(self, interval=10):
         self._alarm = None
         self.clockticks = 0
         self.interval = interval
