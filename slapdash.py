@@ -27,7 +27,7 @@ class LoadPage(urwid.Pile):
         self.text = urwid.BigText('---', urwid.font.Thin6x6Font())
         textadapter = urwid.Overlay(self.text, urwid.SolidFill(), 'center', None, 'middle', None)
 
-        self.nbars = 40
+        self.nbars = 60
         self.bartop = 10
         self.bardata = collections.deque([(0,) for tmp in range(self.nbars)], self.nbars)
         self.bargraph = urwid.BarGraph(
@@ -35,12 +35,9 @@ class LoadPage(urwid.Pile):
                 ['graph line background', 'graph line bar'],
                 { (1,0): 'bar smooth', },
             )
-        self.bargraph.set_bar_width(2)
+        self.bargraph.set_bar_width(1)
 
-        super().__init__([
-            (10, textadapter),
-            self.bargraph,
-        ])
+        super().__init__([(10, textadapter), self.bargraph,])
 
     def activate(self):
         self.hidden = False
@@ -61,8 +58,7 @@ class LoadPage(urwid.Pile):
         self.updategraph()
 
     def updategraph(self):
-        lines = [0]
-        self.bargraph.set_data(list(self.bardata), self.bartop, lines)
+        self.bargraph.set_data(list(self.bardata), self.bartop)
 
 
 class MainWindow(urwid.Frame):
@@ -101,6 +97,7 @@ class Main:
 
         self.widget = MainWindow()
         self.loop = urwid.MainLoop(self.widget, palette)
+        self.widget.update(self.clockticks)
         self.startclock()
         self.loop.run()
 
