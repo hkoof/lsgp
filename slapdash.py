@@ -35,7 +35,7 @@ class LoadPage(urwid.Pile):
                 ['graph line background', 'graph line bar'],
                 { (1,0): 'bar smooth', },
             )
-        self.bargraph.set_bar_width(1)
+        self.bargraph.set_bar_width(2)
 
         super().__init__([
             (10, textadapter),
@@ -61,8 +61,7 @@ class LoadPage(urwid.Pile):
         self.updategraph()
 
     def updategraph(self):
-#        lines = [(2,), (4,), (6,), (8,), (8,)]
-        lines = [5]
+        lines = [0]
         self.bargraph.set_data(list(self.bardata), self.bartop, lines)
 
 
@@ -95,7 +94,7 @@ class MainWindow(urwid.Frame):
         self.loadpage.update(ticks)
 
 class Main:
-    def __init__(self, interval=10):
+    def __init__(self, interval=1):
         self._alarm = None
         self.clockticks = 0
         self.interval = interval
