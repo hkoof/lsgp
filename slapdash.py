@@ -97,7 +97,7 @@ class Main:
         self.interval = interval
 
         self.widget = MainWindow()
-        self.loop = urwid.MainLoop(self.widget, palette)
+        self.loop = urwid.MainLoop(self.widget, palette, unhandled_input=handle_key)
         self.widget.update(self.clockticks)
         self.startclock()
         self.loop.run()
@@ -114,6 +114,10 @@ class Main:
         self.clockticks += 1
         self.widget.update(self.clockticks)
         self.startclock()
+
+def handle_key(key):
+    if key in ('q', 'Q'):
+        raise urwid.ExitMainLoop()
 
 if __name__ == "__main__":
     main = Main()
