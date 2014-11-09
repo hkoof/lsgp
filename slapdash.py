@@ -28,7 +28,7 @@ class LoadPage(urwid.Pile):
         textadapter = urwid.Overlay(self.text, urwid.SolidFill(), 'center', None, 'middle', None)
 
         self.nbars = 60
-        self.bartop = 10
+        self.bartop = 3
         self.bardata = collections.deque([(0,) for tmp in range(self.nbars)], self.nbars)
         self.bargraph = urwid.BarGraph(
                 ['graph background', 'bar'],
@@ -58,7 +58,8 @@ class LoadPage(urwid.Pile):
         self.updategraph()
 
     def updategraph(self):
-        self.bargraph.set_data(list(self.bardata), self.bartop)
+        hlines = [1,2]
+        self.bargraph.set_data(list(self.bardata), self.bartop, hlines)
 
 
 class MainWindow(urwid.Frame):
