@@ -90,6 +90,10 @@ class MainWindow(urwid.Frame):
         # call update() on all widgets
         self.loadpage.update(ticks)
 
+def handleInput(key):
+    if key == 'esc':
+        raise urwid.ExitMainLoop()
+
 class Main:
     def __init__(self, interval=1):
         self._alarm = None
@@ -97,7 +101,11 @@ class Main:
         self.interval = interval
 
         self.widget = MainWindow()
-        self.loop = urwid.MainLoop(self.widget, palette, unhandled_input=handle_key)
+        self.loop = urwid.MainLoop(self.widget,
+                palette,
+                unhandled_input=handleInput,
+                event_loop=urwid.AsyncioEventLoop()
+                )
         self.widget.update(self.clockticks)
         self.startclock()
         self.loop.run()
