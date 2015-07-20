@@ -58,8 +58,8 @@ class LoadPage(urwid.Pile):
         self.updategraph()
 
     def updategraph(self):
-        hlines = [1,2]
-        self.bargraph.set_data(list(self.bardata), self.bartop, hlines)
+        # hlines = [1,2]
+        self.bargraph.set_data(list(self.bardata), self.bartop)
 
 
 class MainWindow(urwid.Frame):
