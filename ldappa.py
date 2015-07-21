@@ -39,10 +39,8 @@ class TimePage(urwid.Pile):
     def deactivate(self):
         self.hidden = True
 
-    def update(self, ticks):
-        if self.hidden:
-            return
-        self.text.set_text("QQleQ")
+    def update(self, txt):
+        self.text.set_text(txt)
 
     def updategraph(self):
         # hlines = [1,2]
@@ -61,7 +59,7 @@ class MainWindow(urwid.Frame):
 
         pages = [
                     ('time', self.timepage),
-                    ('slapdash', self.about),
+                    ('ldappa', self.about),
                     ('aap', urwid.SolidFill('a')),
                     ('noot', urwid.SolidFill('b')),
                     ('mies', urwid.SolidFill('c')),
@@ -73,41 +71,85 @@ class MainWindow(urwid.Frame):
         self.content = NoteBook(pages)
         super().__init__(self.content, self.header, self.footer)
 
-
-def clocktick(widget, loop):
-    loop_epoch_secs = loop.time()
-    clock_epoch_secs = time.time()
-
-    looptime = datetime.datetime.fromtimestamp(loop_epoch_secs)
-    clocktime = datetime.datetime.fromtimestamp(clock_epoch_secs)
-
-    log.debug("Loop secs:  {}    Loop time:  {}".format(loop_epoch_secs, looptime))
-    log.debug("Clock secs: {}    Clock time: {}".format(clock_epoch_secs, clocktime))
-
-    # Call again (and again, and ...) 1 minute later
-    loop.call_at(loop_epoch_secs + 60, clocktick, widget, loop)
-    #loop.call_later(60, clocktick, widget, loop)
-    log.debug("---")
+    def update(self, ticks, time):
+        self.timepage.update(time.strftime("%H:%M:%S"))
 
 
-def handleInput(key):
-    if key == 'esc':
-        raise urwid.ExitMainLoop()
+class Ticker():
+    def __init__(self, loop, callback):
+        self._loop = loop
+        self._callback = callback
 
+        self.running = False
+        self.ticks = 0
+
+    def start(self):
+        # loopclock != wallclock and wwe want the ticks to occur every
+        # wallclock minute. Using sleep(60) everythime may skew to the
+        # point of skipping a wallclock minute, since things may be done
+        # meanwhile in the same thread in the event loop.
+        #
+        # So we try to start just after the current minute will begin,
+        # and schedule every next ticker call at current loop-time + 60.
+        #
+        looptime = self._loop.time()
+        clocktime = time.time()
+
+        secs2start = 60 - int(clocktime) % 60
+        log.debug("starting ticker in {} seconds".format(secs2start))
+
+        self._loop.call_at(looptime + secs2start, self.tick)
+        self.running = True
+
+    def stop(self):
+        self.running = False
+
+    def tick(self):
+        looptime = self._loop.time()
+        clocktime = datetime.datetime.now()
+        if not self.running:
+            return
+        self.ticks += 1
+        self._loop.call_soon(self._callback, self.ticks, clocktime)
+        self._loop.call_at(looptime + 60, self.tick)
+
+
+class MainLoop(urwid.MainLoop):
+    # Workaround to leave terminal usable after exception (eg. ctrl-c)
+    # (thanks "regebro", in urwid's github issue #126)
+    def run(self):
+        try:
+            self._run()
+        except urwid.ExitMainLoop:
+            pass
+        except BaseException:
+            self.screen.stop()
+            raise
 
 def main():
     eventloop = asyncio.get_event_loop()
     widget = MainWindow()
-    eventloop.call_soon(clocktick ,widget, eventloop)
+    ticker = Ticker(eventloop, widget.update)
+    ticker.start()
 
-    mainloop = urwid.MainLoop(
+    mainloop = MainLoop(
         widget,
         palette,
         unhandled_input=handleInput,
         event_loop=urwid.AsyncioEventLoop(loop=eventloop),
         )
     mainloop.run()
+
+    # FIXME: not needed(?)
+    ticker.stop()
+    event_loop.stop()
     event_loop.close()
+
+
+def handleInput(key):
+    if key == 'esc':
+        raise urwid.ExitMainLoop()
+
 
 if __name__ == "__main__":
     main()
