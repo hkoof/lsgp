@@ -29,6 +29,8 @@ def main():
     result = connection.search('cn=Max File Descriptors,cn=Connections,cn=monitor', 0, '', ['+'])
     maxDescriptors = result[0]['monitorCounter'][0]
 
+    connection.close()
+
     print()
     print("Connections:")
     print("  Max descr:", maxDescriptors)
