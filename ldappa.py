@@ -7,11 +7,10 @@ import bonsai
 
 
 def main():
-    config = Config(os.path.expanduser('~/.ldapparc'))
-    monitorconf = config['monitor']
+    conf = Config(os.path.expanduser('~/.ldapparc'))['monitor']
 
-    client = bonsai.LDAPClient(monitorconf['url'])
-    client.set_credentials("SIMPLE", (monitorconf['binddn'], monitorconf['password']))
+    client = bonsai.LDAPClient(conf['url'])
+    client.set_credentials("SIMPLE", (conf['binddn'], conf['password']))
     connection = client.connect()
 
     result = connection.search('cn=Bytes,cn=Statistics,cn=monitor', 0, '', ['+'])
