@@ -2,7 +2,6 @@
 
 import collections
 import urwid
-from notebook import NoteBook
 
 palette = [
     (None, '', ''),
@@ -20,68 +19,23 @@ palette = [
 ]
 
 
-class LoadPage(urwid.Pile):
-    def __init__(self):
-        self.hidden = True
-        self.procfd = open("/proc/loadavg")
-        self.text = urwid.BigText('---', urwid.font.Thin6x6Font())
-        textadapter = urwid.Overlay(self.text, urwid.SolidFill(), 'center', None, 'middle', None)
-
-        self.nbars = 60
-        self.bartop = 10
-        self.bardata = collections.deque([(0,) for tmp in range(self.nbars)], self.nbars)
-        self.bargraph = urwid.BarGraph(
-                ['graph background', 'bar'],
-                ['graph line background', 'graph line bar'],
-                { (1,0): 'bar smooth', },
-            )
-        self.bargraph.set_bar_width(2)
-
-        super().__init__([(10, textadapter), self.bargraph,])
-
-    def activate(self):
-        self.hidden = False
-        self.updategraph()
-
-    def deactivate(self):
-        self.hidden = True
-
-    def update(self, ticks):
-        if self.hidden:
-            return
-        loadline = self.procfd.readline(128)
-        self.procfd.seek(0)
-        load1m = loadline.split()[0]
-        load1number = float(load1m)
-        self.text.set_text(load1m)
-        self.bardata.append((load1number,))
-        self.updategraph()
-
-    def updategraph(self):
-        self.bargraph.set_data(list(self.bardata), self.bartop)
-
-
 class MainWindow(urwid.Frame):
     def __init__(self):
         self.header = urwid.AttrMap(urwid.Text(('menu', "Menu")), 'header')
-        self.footer = urwid.AttrMap(urwid.Text(('status', '"slapdash" - ldap server dashboard in text mode')), 'footer')
+        self.footer = urwid.AttrMap(urwid.Text(('status', 'lsgp - LDAP Server Gauge Panel - Text mode interface to cn=monitor')), 'footer')
 
-        abouttext = urwid.BigText('slapdash', urwid.font.Thin6x6Font())
+        abouttext = urwid.BigText('lsgp', urwid.font.Thin6x6Font())
         about = urwid.Overlay(abouttext, urwid.SolidFill('/'), 'center', None, 'middle', None)
         self.about = urwid.Padding(about)
         self.loadpage = LoadPage()
 
         pages = [
-                    ('load', self.loadpage),
-                    ('slapdash', self.about),
-                    ('aap', urwid.SolidFill('a')),
-                    ('noot', urwid.SolidFill('b')),
-                    ('mies', urwid.SolidFill('c')),
-                    ('wim', urwid.SolidFill('d')),
-                    ('zus', urwid.SolidFill('e')),
-                    ('jet', urwid.SolidFill('f')),
-                    ('teun', urwid.SolidFill('g')),
-                ]
+                ('slapdash', self.about),
+                ('aap', urwid.SolidFill('a')),
+                ('noot', urwid.SolidFill('b')),
+                ('mies', urwid.SolidFill('c')),
+                ('wim', urwid.SolidFill('d')),
+        ]
         self.content = NoteBook(pages)
         super().__init__(self.content, self.header, self.footer)
 
