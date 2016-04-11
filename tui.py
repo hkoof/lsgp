@@ -3,6 +3,8 @@
 import collections
 import urwid
 
+from notebook import NoteBook
+
 palette = [
     (None, '', ''),
     ('header', 'black', 'dark blue'),
@@ -18,34 +20,53 @@ palette = [
     ('graph line bar', 'brown', 'dark blue'),
 ]
 
+class AboutWindow(urwid.Padding):
+    bgchars = ('\\', '|', '/', '|')
+    abouttext = urwid.BigText('{} v{}'.format('lsgp', '0.1'), urwid.font.Thin6x6Font())
+
+    def __init__(self, *args, **kwargs):
+        self.bgchar_index = len(AboutWindow.bgchars)
+        self.update()
+        super().__init__(self.original_widget)
+
+    def update(self):
+        self.bgchar_index += 1
+        if self.bgchar_index >= len(AboutWindow.bgchars):
+            self.bgchar_index = 0
+        self.background = urwid.SolidFill(AboutWindow.bgchars[self.bgchar_index])
+        self.original_widget = urwid.Overlay(
+                AboutWindow.abouttext,
+                self.background,
+                'center', None, 'middle', None
+            ) 
+
 
 class MainWindow(urwid.Frame):
     def __init__(self):
         self.header = urwid.AttrMap(urwid.Text(('menu', "Menu")), 'header')
         self.footer = urwid.AttrMap(urwid.Text(('status', 'lsgp - LDAP Server Gauge Panel - Text mode interface to cn=monitor')), 'footer')
-
-        abouttext = urwid.BigText('lsgp', urwid.font.Thin6x6Font())
-        about = urwid.Overlay(abouttext, urwid.SolidFill('/'), 'center', None, 'middle', None)
-        self.about = urwid.Padding(about)
-        self.loadpage = LoadPage()
+        self.about = AboutWindow()
 
         pages = [
-                ('slapdash', self.about),
-                ('aap', urwid.SolidFill('a')),
-                ('noot', urwid.SolidFill('b')),
-                ('mies', urwid.SolidFill('c')),
-                ('wim', urwid.SolidFill('d')),
+            ('lsgp', self.about),
+            ('aap', urwid.SolidFill('a')),
+            ('noot', urwid.SolidFill('b')),
+            ('mies', urwid.SolidFill('c')),
+            ('wim', urwid.SolidFill('d')),
         ]
         self.content = NoteBook(pages)
         super().__init__(self.content, self.header, self.footer)
 
     def update(self, ticks):
         # call update() on all widgets
-        self.loadpage.update(ticks)
+        #self.loadpage.update(ticks)
+        self.about.update()
 
 
 class Main:
-    def __init__(self, interval=2):
+    def __init__(self, prog, version, interval=1):
+        self.prog = prog
+        self.version = version
         self._alarm = None
         self.clockticks = 0
         self.interval = interval
@@ -70,5 +91,5 @@ class Main:
         self.startclock()
 
 if __name__ == "__main__":
-    main = Main()
+    main = Main('lsgp', '0.1')
 
