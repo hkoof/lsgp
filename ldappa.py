@@ -17,7 +17,7 @@ def wait_result(connection, msgid):
     return result
 
 def main():
-    conf = Config(os.path.expanduser('~/.ldapparc'))['monitor']
+    conf = Config(os.path.expanduser('~/.lsgprc'))['monitor']
 
     client = bonsai.LDAPClient(conf['url'])
     client.set_credentials("SIMPLE", (conf['binddn'], conf['password']))
