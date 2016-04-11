@@ -1,0 +1,3 @@
+PyPubSub==3.3.0
+bonsai==0.8.5
+urwid==1.3.1
