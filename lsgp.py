@@ -1,8 +1,5 @@
 #!/usr/env/bin python
 
-__program__ = "lsgp"
-__version__ = "0.01"
-
 if __name__ != "__main__":
     raise ImportError("Program not importable.")
 
@@ -10,12 +7,13 @@ import sys
 import os.path
 import argparse
 
+import prog
 from config import Config
 
 #### Command line parsing
 #
 parser = argparse.ArgumentParser(prog=__program__,
-        description="LDAP Server Gauge Panel - Text mode interface to cn=monitor."
+        description=prog.description,
     )
 parser.add_argument('-V', '--version',
         action='version',
@@ -41,4 +39,7 @@ if args.print_config:
     conf.write(sys.stdout)
     sys.exit(0)
 
+from tui import Main
+main = Main()
+main.run()
 

@@ -4,6 +4,7 @@ import collections
 import urwid
 
 from notebook import NoteBook
+from about import AboutWindow
 
 palette = [
     (None, '', ''),
@@ -19,27 +20,6 @@ palette = [
     ('graph line background', 'brown', ''),
     ('graph line bar', 'brown', 'dark blue'),
 ]
-
-
-class AboutWindow(urwid.Padding):
-    bgchars = ('\\', '|', '/', '|')
-    abouttext = urwid.BigText('{} v{}'.format('lsgp', '0.1'), urwid.font.Thin6x6Font())
-
-    def __init__(self, *args, **kwargs):
-        self.bgchar_index = len(AboutWindow.bgchars)
-        self.update()
-        super().__init__(self.original_widget)
-
-    def update(self):
-        self.bgchar_index += 1
-        if self.bgchar_index >= len(AboutWindow.bgchars):
-            self.bgchar_index = 0
-        self.background = urwid.SolidFill(AboutWindow.bgchars[self.bgchar_index])
-        self.original_widget = urwid.Overlay(
-                AboutWindow.abouttext,
-                self.background,
-                'center', None, 'middle', None
-            ) 
 
 
 class MainWindow(urwid.Frame):
@@ -60,7 +40,6 @@ class MainWindow(urwid.Frame):
 
     def update(self, ticks):
         # call update() on all widgets
-        #self.loadpage.update(ticks)
         self.about.update()
 
 
@@ -72,6 +51,8 @@ class Main:
 
         self.widget = MainWindow()
         self.loop = urwid.MainLoop(self.widget, palette)
+
+    def run(self):
         self.widget.update(self.clockticks)
         self.startclock()
         self.loop.run()
@@ -91,4 +72,5 @@ class Main:
 
 if __name__ == "__main__":
     main = Main()
+    main.run()
 
