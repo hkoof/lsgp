@@ -20,6 +20,7 @@ palette = [
     ('graph line bar', 'brown', 'dark blue'),
 ]
 
+
 class AboutWindow(urwid.Padding):
     bgchars = ('\\', '|', '/', '|')
     abouttext = urwid.BigText('{} v{}'.format('lsgp', '0.1'), urwid.font.Thin6x6Font())
@@ -64,9 +65,7 @@ class MainWindow(urwid.Frame):
 
 
 class Main:
-    def __init__(self, prog, version, interval=1):
-        self.prog = prog
-        self.version = version
+    def __init__(self, interval=1):
         self._alarm = None
         self.clockticks = 0
         self.interval = interval
@@ -91,5 +90,5 @@ class Main:
         self.startclock()
 
 if __name__ == "__main__":
-    main = Main('lsgp', '0.1')
+    main = Main()
 
