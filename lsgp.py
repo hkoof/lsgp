@@ -18,7 +18,7 @@ parser = argparse.ArgumentParser(prog=__program__,
         description="LDAP Server Gauge Panel - Text mode interface to cn=monitor."
     )
 parser.add_argument("-c", "--config",
-        default=os.path.expanduser('~/.lsgprc'),
+        default=['/etc/lsgp.conf', os.path.expanduser('~/.lsgprc')],
         help="path of configuration file",
     )
 parser.add_argument("--print-config", action='store_true',
