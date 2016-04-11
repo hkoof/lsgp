@@ -17,9 +17,17 @@ from config import Config
 parser = argparse.ArgumentParser(prog=__program__,
         description="LDAP Server Gauge Panel - Text mode interface to cn=monitor."
     )
+parser.add_argument('-V', '--version',
+        action='version',
+        version='%(prog)s {}'.format(__version__),
+    )
 parser.add_argument("-c", "--config",
         default=['/etc/lsgp.conf', os.path.expanduser('~/.lsgprc')],
         help="path of configuration file",
+    )
+parser.add_argument("-v", "--verbose",
+    action="store_true",
+        help="florid proze output",
     )
 parser.add_argument("--print-config", action='store_true',
         help="print configuration to standard output and exit",
