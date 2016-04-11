@@ -19,11 +19,3 @@ class Config(configparser.ConfigParser):
 
     def print(self):
         self.write(sys.stdout)
-    
-
-def main():
-    config = Config(os.path.expanduser('~/.ldapparc'))
-    config.print()
-
-if __name__ == "__main__":
-    main()
