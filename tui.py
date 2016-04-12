@@ -44,7 +44,8 @@ class MainWindow(urwid.Frame):
 
 
 class Main:
-    def __init__(self, interval=1):
+    def __init__(self, cnmonitor, interval=1):
+        self.cnmonitor = cnmonitor
         self._alarm = None
         self.clockticks = 0
         self.interval = interval

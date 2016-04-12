@@ -4,7 +4,7 @@ import prog
 class AboutWindow(urwid.Padding):
     bgchars = ('\\', '|', '/', '|')
     abouttext = urwid.BigText(
-            '{} v{}'.format(prog.name, prog.version),
+            '{} {}'.format(prog.name, prog.version),
             urwid.font.Thin6x6Font()
         )
 

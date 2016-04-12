@@ -1,11 +1,16 @@
 #!/usr/bin/env python
-import sys
 
+import sys
+import logging
 import os.path
-from config import Config
+import logging
 
 import bonsai
 
+import prog
+from config import Config
+
+log = logging.getLogger(prog.name)
 
 def wait_result(connection, msgid):
     i = 0
