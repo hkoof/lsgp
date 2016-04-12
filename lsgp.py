@@ -24,8 +24,8 @@ parser.add_argument("-c", "--config",
         help="path of configuration file",
     )
 parser.add_argument("-v", "--verbose",
-    action="store_true",
-        help="florid proze output",
+        action="store_true",
+        help="florid proze logging",
     )
 parser.add_argument("--print-config", action='store_true',
         help="print configuration to standard output and exit",
@@ -38,6 +38,11 @@ monitorconf = conf['monitor']
 if args.print_config:
     conf.write(sys.stdout)
     sys.exit(0)
+
+import ldapper
+
+# LDAP connection for cn=monitor
+cn_monitor = ldapper.Connection(conf['monitor'])
 
 from tui import Main
 main = Main()
