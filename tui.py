@@ -5,6 +5,7 @@ import urwid
 
 from notebook import NoteBook
 from about import AboutWindow
+from overview import Overview
 
 palette = [
     (None, '', ''),
@@ -19,6 +20,7 @@ palette = [
     ('bar smooth', 'dark blue', ''),
     ('graph line background', 'brown', ''),
     ('graph line bar', 'brown', 'dark blue'),
+    ('value', 'light red', 'white'),
 ]
 
 
@@ -26,10 +28,13 @@ class MainWindow(urwid.Frame):
     def __init__(self):
         self.header = urwid.AttrMap(urwid.Text(('menu', "Menu")), 'header')
         self.footer = urwid.AttrMap(urwid.Text(('status', 'lsgp - LDAP Server Gauge Panel - Text mode interface to cn=monitor')), 'footer')
+
+        self.overview = Overview()
         self.about = AboutWindow()
 
         pages = [
             ('lsgp', self.about),
+            ('Overview', self.overview),
             ('aap', urwid.SolidFill('a')),
             ('noot', urwid.SolidFill('b')),
             ('mies', urwid.SolidFill('c')),
@@ -41,6 +46,7 @@ class MainWindow(urwid.Frame):
     def update(self, ticks):
         # call update() on all widgets
         self.about.update()
+        self.overview.update(str(ticks))
 
 
 class Main:
@@ -70,8 +76,4 @@ class Main:
         self.clockticks += 1
         self.widget.update(self.clockticks)
         self.startclock()
-
-if __name__ == "__main__":
-    main = Main()
-    main.run()
 

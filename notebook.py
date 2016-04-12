@@ -1,4 +1,9 @@
+import logging
 import urwid
+
+import prog
+
+log = logging.getLogger(prog.name)
 
 class NoteBook(urwid.Columns):
     '''pages : list of tuples like ('label', widget)'''
