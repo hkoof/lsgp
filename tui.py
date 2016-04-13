@@ -49,7 +49,11 @@ class MainWindow(urwid.Frame):
     def update(self, ticks):
         # call update() on all widgets
         self.about.update()
-        self.overview.update(str(ticks))
+
+    def receive_number_connections(self, result):
+        number_connections = result[0]['monitorCounter'][0]
+        log.debug("ldap result: " + str(number_connections))
+        self.overview.update(str(number_connections))
 
 
 class Main:
@@ -63,6 +67,7 @@ class Main:
         self.loop = urwid.MainLoop(self.widget, palette)
 
     def run(self):
+        self.loop.watch_file(self.cnmonitor.fileno(), self.cnmonitor.poll)
         self.widget.update(self.clockticks)
         self.startclock()
         self.loop.run()
@@ -78,5 +83,9 @@ class Main:
     def clocktick(self, loop=None, data=None):
         self.clockticks += 1
         self.widget.update(self.clockticks)
+        self.cnmonitor.search(
+                "cn=Current,cn=Connections,cn=Monitor",
+                0, '', ['+'],
+                self.widget.receive_number_connections,
+            )
         self.startclock()
-
