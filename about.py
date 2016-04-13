@@ -12,11 +12,20 @@ class AboutWindow(urwid.Padding):
         )
 
     def __init__(self, *args, **kwargs):
+        self.active = True
         self.bgchar_index = len(AboutWindow.bgchars)
         self.update()
         super().__init__(self.original_widget)
 
+    def activate(self):
+        self.active = True
+
+    def deactivate(self):
+        self.active = False
+
     def update(self):
+        if not self.active:
+            return
         self.bgchar_index += 1
         if self.bgchar_index >= len(AboutWindow.bgchars):
             self.bgchar_index = 0
