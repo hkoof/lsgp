@@ -1,9 +1,7 @@
 import time
-import logging
 import bonsai
 
-import prog
-
+import logging, prog
 log = logging.getLogger(prog.name)
 
 class AsyncJob:

@@ -7,6 +7,9 @@ from notebook import NoteBook
 from about import AboutWindow
 from overview import Overview
 
+import logging, prog
+log = logging.getLogger(prog.name)
+
 palette = [
     (None, '', ''),
     ('header', 'black', 'dark blue'),

@@ -1,10 +1,8 @@
-import logging
-
 import urwid
 
-import prog
-
+import logging, prog
 log = logging.getLogger(prog.name)
+
 
 class Overview(urwid.Filler):
     def __init__(self):

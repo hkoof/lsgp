@@ -3,11 +3,11 @@
 import sys
 import logging
 import os.path
-import logging
 
 import bonsai
 
 import prog
+import logging
 from config import Config
 
 log = logging.getLogger(prog.name)
