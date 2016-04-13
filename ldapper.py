@@ -46,7 +46,7 @@ class Connection:
             job_result = self._connection.get_result(job.msgid)
             if job_result is not None:
                 try:
-                    log.debug("Calling back: {} {} {}".format(job.callback, job.args, jobs.kwargs))
+                    log.debug("Calling back: {} {} {}".format(job.callback, job.args, job.kwargs))
                     job.callback(job_result, *job.args, **job.kwargs)
                 finally:
                     del self._jobs[i]
