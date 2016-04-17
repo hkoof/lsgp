@@ -70,11 +70,10 @@ class Connection:
 
 class MonitorSubscriber:
     def __init__(self, callback, ldapattr, interval=1):
-        log.debug("MonitorSubscriber ({} {} {} {})".format(callback,  ldapbase, interval, value))
         self.callback = callback
         self.ldapattr = ldapattr
         self.interval = interval
-        self.value = None
+        self.value = None # FIXME: todo; dont call back if value not changed
     
 
 class CNMonitor(Connection):
@@ -85,6 +84,7 @@ class CNMonitor(Connection):
     def subscribe(self, callback, ldapbase, ldapattr, interval=1):
         subs = MonitorSubscriber(callback, ldapattr, interval)
         self.subscriptions.setdefault(ldapbase, list()).append(subs)
+        log.debug("subscriptions: {}".format(self.subscriptions))
 
     def unsubscribe(self, callback, ldapbase):
         subs = self.subscriptions.get(ldapbase)
@@ -101,10 +101,10 @@ class CNMonitor(Connection):
             i += 1
 
     def update(self, ticks):
-        for ldapbase, subs in self.subscriptions.iteritems():
+        for ldapbase, subs in self.subscriptions.items():
             for sub in subs:
                 if ticks % sub.interval == 0:
-                    self.search(ldapbase, 0, '', ('+',) self.dispatch_result, sub.callback, sub.ldapattr)
+                    self.search(ldapbase, 0, '', ('+',), self.dispatch_result, sub.callback, sub.ldapattr)
 
     def dispatch_result(self, result, callback, ldapattr):
         callback(result[0][ldapattr][0])

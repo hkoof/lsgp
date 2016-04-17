@@ -78,7 +78,7 @@ if logsyslog:
 cn_monitor = ldapper.CNMonitor(conf['monitor'])
 cn_monitor.open(None)
 
-from tui import Main
+from tui import MainWindow
 main = MainWindow(cn_monitor)
 main.run()
 
