@@ -63,8 +63,48 @@ class Connection:
             result = self._connection.get_result(msgid)
         return result 
 
-    def search(self, base, scope, filter_, attrs, callback, *args, **kwargs):
-        msgid = self._connection.search(base, scope, filter_, attrs)
+    def search(self, base, scope, filter, attrs, callback, *args, **kwargs):
+        msgid = self._connection.search(base, scope, filter, attrs)
         job = AsyncJob(msgid, callback, args, kwargs)
         self._jobs.append(job)
+
+class MonitorSubscriber:
+    def __init__(self, callback, interval=1):
+        log.debug("MonitorSubscriber ({} {} {} {})".format(callback,  ldapbase, interval, value))
+        self.callback = callback
+        self.interval = interval
+        self.value = None
+    
+
+class CNMonitor(Connection):
+    def __init__(self, *args, **kwargs):
+        self.subscriptions = dict()
+        super().__init__(*args, **kwargs)
+
+    def subscribe(self, callback, ldapbase, interval=1):
+        subs = MonitorSubscriber(callback, interval)
+        self.subscriptions.setdefault(ldapbase, list()).append(subs)
+
+    def unsubscribe(self, callback, ldapbase):
+        subs = self.subscriptions.get(ldapbase)
+        if subs is None:
+            return
+        if len(subs) <= 1:
+            del self.subscriptions[ldapbase]
+            return
+        i = 0
+        for sub in subs[:]:
+            if sub.callback == callback:
+                del subs[i]
+                return
+            i += 1
+
+    def update(self, interval):
+        for ldapbase, subs in self.subscriptions.iteritems():
+            self.search(ldapbase, 0, '', ['+'], subs.callback)
+# fixme: is interval % bla
+
+
+
+
 
