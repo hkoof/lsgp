@@ -104,8 +104,9 @@ class CNMonitor(Connection):
         for ldapbase, subs in self.subscriptions.items():
             for sub in subs:
                 if ticks % sub.interval == 0:
-                    self.search(ldapbase, 0, '', ('+',), self.dispatch_result, sub.callback, sub.ldapattr)
+                    self.search(ldapbase, 0, '', ['+'], self.dispatch_result, sub.callback, sub.ldapattr)
 
     def dispatch_result(self, result, callback, ldapattr):
+        log.debug("result: {}".format(repr(result)))
         callback(result[0][ldapattr][0])
 
