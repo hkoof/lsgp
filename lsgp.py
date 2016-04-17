@@ -75,10 +75,10 @@ if logsyslog:
     log.addHandler(log_2syslog)
 
 # LDAP connection for cn=monitor
-cn_monitor = ldapper.Connection(conf['monitor'])
+cn_monitor = ldapper.CNMonitor(conf['monitor'])
 cn_monitor.open(None)
 
 from tui import Main
-main = Main(cn_monitor)
+main = MainWindow(cn_monitor)
 main.run()
 

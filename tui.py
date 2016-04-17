@@ -28,11 +28,17 @@ palette = [
 
 
 class MainWindow(urwid.Frame):
-    def __init__(self):
+    def __init__(self, cnmonitor, interval=1):
+        self.cnmonitor = cnmonitor
+        self.interval = interval
+        self._alarm = None
+        self.clockticks = 0
+
+        self.loop = urwid.MainLoop(self, palette)
         self.header = urwid.AttrMap(urwid.Text(('menu', "Menu")), 'header')
         self.footer = urwid.AttrMap(urwid.Text(('status', 'lsgp - LDAP Server Gauge Panel - Text mode interface to cn=monitor')), 'footer')
 
-        self.overview = Overview()
+        self.overview = Overview(self.cnmonitor)
         self.about = AboutWindow()
 
         pages = [
@@ -46,29 +52,9 @@ class MainWindow(urwid.Frame):
         self.content = NoteBook(pages)
         super().__init__(self.content, self.header, self.footer)
 
-    def update(self, ticks):
-        # call update() on all widgets
-        self.about.update()
-
-    def receive_number_connections(self, result):
-        number_connections = result[0]['monitorCounter'][0]
-        log.debug("ldap result: " + str(number_connections))
-        self.overview.update(str(number_connections))
-
-
-class Main:
-    def __init__(self, cnmonitor, interval=1):
-        self.cnmonitor = cnmonitor
-        self.interval = interval
-        self._alarm = None
-        self.clockticks = 0
-
-        self.widget = MainWindow()
-        self.loop = urwid.MainLoop(self.widget, palette)
-
     def run(self):
         self.loop.watch_file(self.cnmonitor.fileno(), self.cnmonitor.poll)
-        self.widget.update(self.clockticks)
+        self.clocktick()
         self.startclock()
         self.loop.run()
 
@@ -80,12 +66,7 @@ class Main:
             self.loop.remove_alarm(self._alarm)
         self._alarm = None
 
-    def clocktick(self, loop=None, data=None):
+    def clocktick(self):
+        self.cnmonitor.update(self.clockticks)
         self.clockticks += 1
-        self.widget.update(self.clockticks)
-        self.cnmonitor.search(
-                "cn=Current,cn=Connections,cn=Monitor",
-                0, '', ['+'],
-                self.widget.receive_number_connections,
-            )
         self.startclock()

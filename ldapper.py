@@ -69,9 +69,10 @@ class Connection:
         self._jobs.append(job)
 
 class MonitorSubscriber:
-    def __init__(self, callback, interval=1):
+    def __init__(self, callback, ldapattr, interval=1):
         log.debug("MonitorSubscriber ({} {} {} {})".format(callback,  ldapbase, interval, value))
         self.callback = callback
+        self.ldapattr = ldapattr
         self.interval = interval
         self.value = None
     
@@ -81,8 +82,8 @@ class CNMonitor(Connection):
         self.subscriptions = dict()
         super().__init__(*args, **kwargs)
 
-    def subscribe(self, callback, ldapbase, interval=1):
-        subs = MonitorSubscriber(callback, interval)
+    def subscribe(self, callback, ldapbase, ldapattr, interval=1):
+        subs = MonitorSubscriber(callback, ldapattr, interval)
         self.subscriptions.setdefault(ldapbase, list()).append(subs)
 
     def unsubscribe(self, callback, ldapbase):
@@ -99,12 +100,12 @@ class CNMonitor(Connection):
                 return
             i += 1
 
-    def update(self, interval):
+    def update(self, ticks):
         for ldapbase, subs in self.subscriptions.iteritems():
-            self.search(ldapbase, 0, '', ['+'], subs.callback)
-# fixme: is interval % bla
+            for sub in subs:
+                if ticks % sub.interval == 0:
+                    self.search(ldapbase, 0, '', ('+',) self.dispatch_result, sub.callback, sub.ldapattr)
 
-
-
-
+    def dispatch_result(self, result, callback, ldapattr):
+        callback(result[0][ldapattr][0])
 

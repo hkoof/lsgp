@@ -5,7 +5,9 @@ log = logging.getLogger(prog.name)
 
 
 class Overview(urwid.Filler):
-    def __init__(self):
+    def __init__(self, cnmonitor):
+        self.cnmonitor = cnmonitor
+        self.cnmonitor.subscribe(self.update, "cn=Current,cn=Connections", "monitorCounter")
         self.connections_label = urwid.Text("Connections:")
         # self.connections_monitor = urwid.Text('', align='right')
         self.connections_monitor = urwid.Text('---')
