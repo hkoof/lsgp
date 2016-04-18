@@ -44,17 +44,17 @@ class Connection:
     def poll(self):
         '''Handle async jobs ready to be processed.'''
         i = 0
-        log.debug("ldap jobs list: {}".format(self._jobs))
         for job in self._jobs[:]:  # iterate shallow copy so we can delete items while looping it
+            log.debug("ldap job: {}".format(job))
             job_result = self._connection.get_result(job.msgid)
             log.debug("LDAP job result: {}".format(job_result))
-            try:
-                if job_result:
+            if job_result:
+                try:
                     log.debug("Calling back: {} {} {}".format(job.callback, job.args, job.kwargs))
                     job.callback(job_result, *job.args, **job.kwargs)
-            finally:
-                log.debug("Deleting job #{} for msgid={}".format(i, job.msgid,))
-                del self._jobs[i]
+                finally:
+                    log.debug("Deleting job #{} for msgid={}".format(i, job.msgid,))
+                    del self._jobs[i]
             i += 1
 
     def _wait(self, msgid):
@@ -67,9 +67,9 @@ class Connection:
             result = self._connection.get_result(msgid)
         return result 
 
-    def search(self, base, scope, filter, attrs, callback, *args, **kwargs):
-        log.debug("LDAP search: {} {} {} {}".format(base, scope, filter, attrs))
-        msgid = self._connection.search(base, scope, filter, attrs)
+    def search(self, base, scope, filter_, attrs, callback, *args, **kwargs):
+        log.debug("LDAP search: {} {} {} {}".format(base, scope, filter_, attrs))
+        msgid = self._connection.search(base, scope, filter_, attrs)
         job = AsyncJob(msgid, callback, args, kwargs)
         log.debug("search job: {}".format(job))
         self._jobs.append(job)
@@ -116,7 +116,7 @@ class CNMonitor(Connection):
             for sub in subs:
                 if ticks % sub.interval == 0:
                     log.debug("submitting search job: {}".format(sub))
-                    self.search(ldapbase + ",cn=monitor", 0, '', ['+'], self.dispatch_result, sub.callback, sub.ldapattr)
+                    self.search(ldapbase + ",cn=Monitor", 0, '', ['+'], self.dispatch_result, sub.callback, sub.ldapattr)
 
     def dispatch_result(self, result, callback, ldapattr):
         log.debug("result: {}".format(repr(result)))
