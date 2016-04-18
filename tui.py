@@ -60,7 +60,7 @@ class MainWindow(urwid.Frame):
         self.loop.run()
 
     def startclock(self):
-        self._alarm = self.loop.set_alarm_in(self.interval, self.clocktick)
+        self._alarm = self.loop.set_alarm_in(.01, self.clocktick)
 
     def stopclock(self):
         if self._alarm:
