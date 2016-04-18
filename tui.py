@@ -42,8 +42,8 @@ class MainWindow(urwid.Frame):
         self.about = AboutWindow()
 
         pages = [
-            ('lsgp', self.about),
             ('Overview', self.overview),
+            ('lsgp', self.about),
             ('aap', urwid.SolidFill('a')),
             ('noot', urwid.SolidFill('b')),
             ('mies', urwid.SolidFill('c')),
@@ -54,7 +54,7 @@ class MainWindow(urwid.Frame):
 
     def run(self):
         self.loop.watch_file(self.cnmonitor.fileno(), self.cnmonitor.poll)
-        self.clocktick()
+        #self.clocktick()
         self.startclock()
         self.loop.run()
 
@@ -66,7 +66,8 @@ class MainWindow(urwid.Frame):
             self.loop.remove_alarm(self._alarm)
         self._alarm = None
 
-    def clocktick(self):
+    def clocktick(self,*args):
+        log.debug("clocktick args: ".format(args))
         self.cnmonitor.update(self.clockticks)
         self.clockticks += 1
         self.startclock()

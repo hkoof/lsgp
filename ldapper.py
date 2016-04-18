@@ -6,11 +6,13 @@ log = logging.getLogger(prog.name)
 
 class AsyncJob:
     def __init__(self, msgid, callback, args, kwargs):
-        log.debug("AsyncJob({} {} {} {})".format(msgid, callback, args, kwargs))
         self.msgid = msgid
         self.callback = callback
         self.args = args
         self.kwargs = kwargs
+
+    def __repr__(self):
+        return "AsyncJob({} {} {} {})".format(self.msgid, self.callback, self.args, self.kwargs)
 
 
 class Connection:
@@ -42,15 +44,17 @@ class Connection:
     def poll(self):
         '''Handle async jobs ready to be processed.'''
         i = 0
+        log.debug("ldap jobs list: {}".format(self._jobs))
         for job in self._jobs[:]:  # iterate shallow copy so we can delete items while looping it
             job_result = self._connection.get_result(job.msgid)
-            if job_result is not None:
-                try:
+            log.debug("LDAP job result: {}".format(job_result))
+            try:
+                if job_result:
                     log.debug("Calling back: {} {} {}".format(job.callback, job.args, job.kwargs))
                     job.callback(job_result, *job.args, **job.kwargs)
-                finally:
-                    del self._jobs[i]
-                    log.debug("Deleted job for msgid={}".format(job.msgid,))
+            finally:
+                log.debug("Deleting job #{} for msgid={}".format(i, job.msgid,))
+                del self._jobs[i]
             i += 1
 
     def _wait(self, msgid):
@@ -64,9 +68,12 @@ class Connection:
         return result 
 
     def search(self, base, scope, filter, attrs, callback, *args, **kwargs):
+        log.debug("LDAP search: {} {} {} {}".format(base, scope, filter, attrs))
         msgid = self._connection.search(base, scope, filter, attrs)
         job = AsyncJob(msgid, callback, args, kwargs)
+        log.debug("search job: {}".format(job))
         self._jobs.append(job)
+
 
 class MonitorSubscriber:
     def __init__(self, callback, ldapattr, interval=1):
@@ -74,7 +81,10 @@ class MonitorSubscriber:
         self.ldapattr = ldapattr
         self.interval = interval
         self.value = None # FIXME: todo; dont call back if value not changed
-    
+   
+    def __repr__(self):
+        return "MonitorSubscriber({}, {})".format(self.ldapattr, self.interval)
+
 
 class CNMonitor(Connection):
     def __init__(self, *args, **kwargs):
@@ -102,9 +112,11 @@ class CNMonitor(Connection):
 
     def update(self, ticks):
         for ldapbase, subs in self.subscriptions.items():
+            log.debug("iter subscriptions: {} -- {}".format(ldapbase, subs))
             for sub in subs:
                 if ticks % sub.interval == 0:
-                    self.search(ldapbase, 0, '', ['+'], self.dispatch_result, sub.callback, sub.ldapattr)
+                    log.debug("submitting search job: {}".format(sub))
+                    self.search(ldapbase + ",cn=monitor", 0, '', ['+'], self.dispatch_result, sub.callback, sub.ldapattr)
 
     def dispatch_result(self, result, callback, ldapattr):
         log.debug("result: {}".format(repr(result)))
