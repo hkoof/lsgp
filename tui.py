@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import collections
+import time
 import urwid
 
 from notebook import NoteBook
@@ -31,6 +32,7 @@ class MainWindow(urwid.Frame):
     def __init__(self, cnmonitor, interval=1):
         self.cnmonitor = cnmonitor
         self.interval = interval
+        self._lasttime = None
         self._alarm = None
         self.clockticks = 0
 
@@ -54,7 +56,6 @@ class MainWindow(urwid.Frame):
 
     def run(self):
         self.loop.watch_file(self.cnmonitor.fileno(), self.cnmonitor.poll)
-        #self.clocktick()
         self.startclock()
         self.loop.run()
 
@@ -70,4 +71,13 @@ class MainWindow(urwid.Frame):
         log.debug("clocktick args: ".format(args))
         self.cnmonitor.update(self.clockticks)
         self.clockticks += 1
-        self.startclock()
+
+        # Try correct time lost in running code
+        now = time.time()
+        if not self._lasttime:
+            interval = self.interval
+        else:
+            interval = self.interval - (now - self._lasttime)
+        self._lasttime = now
+        log.debug("corrected alarm time interval: {}".format(interval))
+        self._alarm = self.loop.set_alarm_in(interval, self.clocktick)
