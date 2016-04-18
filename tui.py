@@ -67,8 +67,8 @@ class MainWindow(urwid.Frame):
             self.loop.remove_alarm(self._alarm)
         self._alarm = None
 
-    def clocktick(self,*args):
-        log.debug("clocktick args: ".format(args))
+    def clocktick(self, *args):
+        log.debug("clocktick args: {}".format(repr(args)))
         self.cnmonitor.update(self.clockticks)
         self.clockticks += 1
 
