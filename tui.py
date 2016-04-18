@@ -74,10 +74,12 @@ class MainWindow(urwid.Frame):
 
         # Try correct time lost in running code
         now = time.time()
+        log.debug("time: lastime = {}".format(self._lasttime))
+        log.debug("time: now = {}".format(now))
         if not self._lasttime:
             interval = self.interval
         else:
-            interval = self.interval - (now - self._lasttime)
+            interval = self.interval - (now - self._lasttime - self.interval)
         self._lasttime = now
-        log.debug("corrected alarm time interval: {}".format(interval))
+        log.debug("time: corrected alarm time interval: {}".format(interval))
         self._alarm = self.loop.set_alarm_in(interval, self.clocktick)
