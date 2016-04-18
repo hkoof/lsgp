@@ -2,4 +2,4 @@ LDAP Server Gauge Panel ("lsgp")
 ================================
 
 Text mode LDAP server monitor.
-pip install bonsai urwid pypubsub
+pip install bonsai urwid
