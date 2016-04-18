@@ -45,9 +45,10 @@ class Connection:
         '''Handle async jobs ready to be processed.'''
         i = 0
         for job in self._jobs[:]:  # iterate shallow copy so we can delete items while looping it
-            log.debug("ldap job: {}".format(job))
+            log.debug("ldap job #{}: {}".format(i, job))
+            # dummy read, seems first "get_result()" always  returns empty set (FIXME: bug bonsai?)
+            dummy = self._connection.get_result(job.msgid)
             job_result = self._connection.get_result(job.msgid)
-            log.debug("LDAP job result: {}".format(job_result))
             if job_result:
                 try:
                     log.debug("Calling back: {} {} {}".format(job.callback, job.args, job.kwargs))
@@ -55,6 +56,8 @@ class Connection:
                 finally:
                     log.debug("Deleting job #{} for msgid={}".format(i, job.msgid,))
                     del self._jobs[i]
+            else:
+                log.debug("No result for LDAP job: {}".format(job))
             i += 1
 
     def _wait(self, msgid):
@@ -63,15 +66,15 @@ class Connection:
         while result is None:
             time.sleep(0.1)
             i += 1
+            # FIXME: make a timeout exit strategy here
             log.debug("_wait({}): {} times".format(msgid, i))
             result = self._connection.get_result(msgid)
         return result 
 
     def search(self, base, scope, filter_, attrs, callback, *args, **kwargs):
-        log.debug("LDAP search: {} {} {} {}".format(base, scope, filter_, attrs))
+        log.debug("LDAP search: '{}' '{}' '{}' '{}'".format(base, scope, filter_, attrs))
         msgid = self._connection.search(base, scope, filter_, attrs)
         job = AsyncJob(msgid, callback, args, kwargs)
-        log.debug("search job: {}".format(job))
         self._jobs.append(job)
 
 
@@ -93,11 +96,12 @@ class CNMonitor(Connection):
 
     def subscribe(self, callback, ldapbase, ldapattr, interval=1):
         subs = MonitorSubscriber(callback, ldapattr, interval)
+        log.debug("add subscription: {}".format(subs))
         self.subscriptions.setdefault(ldapbase, list()).append(subs)
-        log.debug("subscriptions: {}".format(self.subscriptions))
 
     def unsubscribe(self, callback, ldapbase):
         subs = self.subscriptions.get(ldapbase)
+        log.debug("un-subscribing: {} for '{}'".format(callback, subs))
         if subs is None:
             return
         if len(subs) <= 1:
@@ -112,7 +116,7 @@ class CNMonitor(Connection):
 
     def update(self, ticks):
         for ldapbase, subs in self.subscriptions.items():
-            log.debug("iter subscriptions: {} -- {}".format(ldapbase, subs))
+            log.debug("calling  subscriptions for {}".format(ldapbase))
             for sub in subs:
                 if ticks % sub.interval == 0:
                     log.debug("submitting search job: {}".format(sub))
