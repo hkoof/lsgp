@@ -17,5 +17,5 @@ class Overview(urwid.Filler):
 
     def update(self, value):
         log.debug("update value: {}".format(repr(value)))
-        self.connections_monitor.set_text(value)
+        self.connections_monitor.set_text(str(value))
 
