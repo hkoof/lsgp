@@ -52,7 +52,7 @@ class Connection:
             job_result = self._connection.get_result(job.msgid)
             if job_result:
                 try:
-                    log.debug("Calling back: {} {} {}".format(job.callback, job.args, job.kwargs))
+                    log.debug("Calling back: msgid:{} {} {} {}".format(job.msgid, job.callback.__name__, job.args, job.kwargs))
                     job.callback(job_result, *job.args, **job.kwargs)
                 finally:
                     log.debug("Deleting job #{} for msgid={}".format(i, job.msgid,))
@@ -103,7 +103,7 @@ class CNMonitor(Connection):
 
     def unsubscribe(self, callback, ldapbase):
         subs = self.subscriptions.get(ldapbase)
-        log.debug("un-subscribing: {} for '{}'".format(callback, subs))
+        log.debug("un-subscribing: {} for '{}'".format(callback.__name__, subs))
         if subs is None:
             return
         if len(subs) <= 1:
