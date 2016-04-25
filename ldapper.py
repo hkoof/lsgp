@@ -47,8 +47,8 @@ class Connection:
         i = 0
         for job in self._jobs[:]:  # iterate shallow copy so we can delete items while looping it
             log.debug("ldap job #{}: {}".format(i, job))
-            # dummy read, seems first "get_result()" always  returns empty set (FIXME: bug bonsai?)
-            dummy = self._connection.get_result(job.msgid)
+            # dummy read tot test, seems first "get_result()" always  returns empty set (FIXME: bug bonsai?)
+            # test result: sometime DOES get a result, then next raises exception (msgid no valid or old)
             job_result = self._connection.get_result(job.msgid)
             if job_result:
                 try:
@@ -57,9 +57,9 @@ class Connection:
                 finally:
                     log.debug("Deleting job #{} for msgid={}".format(i, job.msgid,))
                     del self._jobs[i]
+                    i += 1
             else:
                 log.debug("No result for LDAP job: {}".format(job))
-            i += 1
 
     def _wait(self, msgid):
         i = 0
