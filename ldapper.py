@@ -22,6 +22,7 @@ class Connection:
         self._client.set_credentials("SIMPLE", (self._config['binddn'], self._config['password']))
         self._connection = bonsai.LDAPConnection(self._client, is_async=True)
         self._jobs = list()
+        self.search_count = 0
 
     def open(self, callback, *args, **kwargs):
         msgid = self._connection.open()
@@ -76,6 +77,7 @@ class Connection:
         msgid = self._connection.search(base, scope, filter_, attrs)
         job = AsyncJob(msgid, callback, args, kwargs)
         self._jobs.append(job)
+        self.search_count += 1
 
 
 class MonitorSubscriber:

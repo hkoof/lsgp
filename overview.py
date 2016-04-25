@@ -15,6 +15,7 @@ class Overview(urwid.Filler):
         super().__init__(container1)
 
     def update(self, value):
+        value -= self.cnmonitor.search_count # do not count the search we do ourselves
         log.debug("update value: {}".format(repr(value)))
         self.searches_monitor.set_text(str(value))
 
