@@ -1,4 +1,5 @@
-slapdash
-========
+LDAP Server Gauge Panel ("lsgp")
+================================
 
-Text mode dashboard for LDAP server.
+Text mode LDAP server monitor.
+pip install bonsai urwid
