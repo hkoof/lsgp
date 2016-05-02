@@ -33,10 +33,12 @@ class NoteBook(urwid.Columns):
         for page in self.pages:
             if page == widget:
                 continue
+            page.active = False
             if hasattr(page, 'deactivate'):
                 page.deactivate()
 
         if hasattr(widget, 'activate'):
+            page.active = True
             widget.activate() 
 
         self.pagebox.original_widget = widget
