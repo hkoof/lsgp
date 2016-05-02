@@ -22,8 +22,8 @@ class NoteBook(urwid.Columns):
         self.pagebox = urwid.WidgetPlaceholder(self.pages[0])
 
         columns = [
-            ('weight', 1, urwid.LineBox(tabbox)),
-            ('weight', 5, urwid.LineBox(self.pagebox)),
+            (16, urwid.LineBox(tabbox)),
+            ('weight', 10, urwid.LineBox(self.pagebox)),
         ]
         super().__init__(columns)
         self.activatePage(self.tabs[0], self.pages[0])
